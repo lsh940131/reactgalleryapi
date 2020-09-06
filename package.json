@@ -1,0 +1,19 @@
+{
+  "name": "gallery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update": "claudia update --set-env TZ=Asia/Seoul"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^4.4.0",
+    "aws-sdk": "^2.746.0",
+    "claudia-api-builder": "^4.1.2",
+    "moment": "^2.27.0"
+  }
+}

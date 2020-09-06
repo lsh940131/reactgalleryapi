@@ -1,0 +1,11 @@
+{
+  "lambda": {
+    "role": "gallery-executor",
+    "name": "gallery",
+    "region": "ap-northeast-2"
+  },
+  "api": {
+    "id": "anc2s2p626",
+    "module": "index"
+  }
+}
