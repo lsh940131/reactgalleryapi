@@ -87,6 +87,7 @@ api.post('/user', function(request){
 	}
 });
 
+
 /*
  * 사용자 Sign In & Out 기록
  * @param {String} action (In or Out)
@@ -95,9 +96,10 @@ api.post('/userSignAction', function(request){
 	var {username, action} = request.body;
 	var now = moment().utcOffset(TIME_ZONE).format(TIME_FORMAT);
 	
-	return userActionSave(username, now, action);
+	return userSignActionSave(username, now, action);
 	
-	function userActionSave(username, now, action){
+	
+	function userSignActionSave(username, now, action){
 		let params = {
 			TableName: TABLE_NAME.signHistory,
 			Item: {
@@ -109,11 +111,12 @@ api.post('/userSignAction', function(request){
 		return dynamoDB.put(params).promise().then(response => {
 			return {statusCode: 200, message: 'OK'};
 		}).catch(err => {
-			console.log(`사용자(${username})의 Sign 기록(${action})이 저장되지 않음. detail: ${err}`);
+			console.log(`사용자(${username})의 Sign 기록(${action})이 저장 실패. detail: ${err}`);
 			return {statusCode: 500, message: 'Internal Server Error'};
 		});
 	}
 });
+
 
 /*
  * 사용자 Sign 기록 조회
@@ -124,6 +127,7 @@ api.get('/usersSign', function(request){
 	
 	return getAllUsersSignHistory();
 	
+	
 	function getAllUsersSignHistory(){
 		let params = {
 			TableName: TABLE_NAME.signHistory
@@ -131,11 +135,12 @@ api.get('/usersSign', function(request){
 		return dynamoDB.scan(params).promise().then(response => {
 			return response.Items;
 		}).catch(err => {
-			console.log(`모든 사용자의 Sign 기록을 조회하지 못함. detail: ${err}`);
+			console.log(`모든 사용자의 Sign 기록 조회 실패. detail: ${err}`);
 			return {statusCode: 500, message: 'Internal Server Error'};
 		});
 	}
 }, {cognitoAuthorizer: 'auth'});
+
 
 /*
  * 이미지 업로드
@@ -156,8 +161,8 @@ api.post('/image', async function(request){
 	}
 	// 중복 확인 후 업로드
 	else {
-		var isExist = await checkAlreadyExists(apiCallerUsername, imageName);
-		if(isExist){
+		var isNotExist = await checkAlreadyExists(apiCallerUsername, imageName);
+		if(isNotExist){
 			return uploadToS3(apiCallerUsername, imageName, imageContent);
 		}
 		else {
@@ -205,10 +210,10 @@ api.post('/image', async function(request){
 				}
 			});
 		}).then(result => {
-			console.log(`사용자(${username})의 이미지 이름(${imageName}) 중복`);
+			// 중복
 			return 0;
 		}).catch(err => {
-			console.log(`중복 아님`);
+			// 중복 아님
 			return 1;
 		});
 	}
@@ -229,14 +234,14 @@ api.post('/image', async function(request){
 					resolve(data);
 			});
 		}).then(result => {
-			console.log(result);
 			return {statusCode: 200, message: 'OK'};
 		}).catch(err => {
-			console.warn(`S3에 이미지를 저장하지 못함. detail: ${err}`);
+			console.warn(`이미지 저장 실패. detail: ${err}`);
 			return {statusCode: 500, message: 'Internal Server Error'};
 		});
 	}
 }, {cognitoAuthorizer: 'auth'});
+
 
 /*
  * 모든 사용자의 모든 이미지 조회
